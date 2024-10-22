@@ -1,1 +1,56 @@
+До рефакторингу:
 
+public double CalculateDiscount(double price, double discountRate) {
+    double discount = price * discountRate;
+    double finalPrice = price - discount;
+    return finalPrice;
+}
+
+double totalPrice = CalculateDiscount(100, 0.2);
+
+Після рефакторингу:
+public double CalculateDiscount(double price, double discountRate) {
+    return price - (price * discountRate);
+}
+
+double totalPrice = CalculateDiscount(100, 0.2);
+
+До рефакторингу:
+if (user.IsPremiumMember() && user.Subscription != null && !user.Subscription.IsExpired()) {
+    SendPremiumContent(user);
+} else {
+    SendRegularContent(user);
+}
+
+Після рефакторингу:
+if (user.CanAccessPremiumContent()) {
+    SendPremiumContent(user);
+} else {
+    SendRegularContent(user);
+}
+
+
+До рефакторингу:
+class Order {
+    public double GetTotalPrice() {
+        return product.Price * quantity;
+    }
+}
+
+class Product {
+    public double Price { get; set; }
+}
+Після рефакторингу:
+class Order {
+    public double GetTotalPrice() {
+        return product.GetTotalPrice(quantity);
+    }
+}
+
+class Product {
+    public double Price { get; set; }
+
+    public double GetTotalPrice(int quantity) {
+        return Price * quantity;
+    }
+}
