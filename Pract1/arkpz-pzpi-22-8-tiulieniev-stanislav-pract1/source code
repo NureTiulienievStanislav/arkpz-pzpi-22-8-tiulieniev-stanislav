@@ -1,0 +1,40 @@
+// Рекомендація 1
+// Поганий приклад (мутабельні змінні)
+let mutable sum = 0
+for i in 1..10 do
+    sum <- sum + i
+printfn "Sum: %d" sum
+
+// Гарний приклад (імутабельні змінні)
+let sum = [1..10] |> List.sum
+printfn "Sum: %d" sum
+// Рекомендація 2
+// Поганий приклад (великі функції)
+let calculateStats list =
+    let mutable sum = 0
+    let mutable count = 0
+    for x in list do
+        sum <- sum + x
+        count <- count + 1
+    let average = sum / count
+    (sum, average)
+
+// Гарний приклад (функції розбиті на менші)
+let sum list = List.sum list
+let count list = List.length list
+let average list = sum list / count list
+
+let calculateStats list =
+    let total = sum list
+    let avg = average list
+    (total, avg)
+// Рекомендація 3
+// Поганий приклад (повторення коду)
+let calculateSquare x = x * x
+let calculateCube x = x * x * x
+
+// Гарний приклад (дотримання DRY)
+let power x n = List.fold (fun acc _ -> acc * x) 1 [1..n]
+
+let calculateSquare x = power x 2
+let calculateCube x = power x 3
