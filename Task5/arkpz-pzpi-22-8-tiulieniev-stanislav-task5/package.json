@@ -1,0 +1,22 @@
+{
+    "name": "atas-laba-2",
+    "version": "1.0.0",
+    "description": "API для роботи з користувачами",
+    "main": "server.js",
+    "scripts": {
+        "start": "nodemon server.js"
+    },
+    "dependencies": {
+        "bcrypt": "^5.1.1",
+        "express": "^4.21.2",
+        "jsonwebtoken": "^9.0.2",
+        "mqtt": "^5.10.3",
+        "pg": "^8.13.1",
+        "swagger-jsdoc": "^6.2.8",
+        "swagger-ui-express": "^4.6.3"
+    },
+    "type": "commonjs",
+    "keywords": [],
+    "author": "",
+    "license": "ISC"
+}

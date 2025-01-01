@@ -1,0 +1,347 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API для роботи з 'Програмна система для управління автопарком'",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/users": {
+  "get": {
+    "summary": "Отримання всіх користувачів",
+    "description": "Отримання списку всіх користувачів (тільки для адміністраторів)",
+    "responses": {
+      "200": {
+        "description": "Список користувачів"
+      },
+      "400": {
+        "description": "Помилка при отриманні списку користувачів"
+      }
+    }
+  }
+},
+"/delete-user/{id}": {
+  "delete": {
+    "summary": "Видалення користувача",
+    "description": "Видалення користувача за ID (тільки для адміністраторів)",
+    "parameters": [
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "ID користувача для видалення"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Користувача успішно видалено"
+      },
+      "400": {
+        "description": "Помилка при видаленні користувача"
+      }
+    }
+  }
+},
+"/delete-vehicle/{id}": {
+  "delete": {
+    "summary": "Видалення транспортного засобу",
+    "description": "Видалення транспортного засобу за ID (тільки для адміністраторів)",
+    "parameters": [
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "ID транспортного засобу для видалення"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Транспортний засіб успішно видалено"
+      },
+      "400": {
+        "description": "Помилка при видаленні транспортного засобу"
+      }
+    }
+  }
+},
+"/register": {
+      "post": {
+        "summary": "Реєстрація користувача",
+        "description": "Реєстрація нового користувача",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "role": {
+                    "type": "string"
+                  }
+                },
+                "required": ["name", "password", "role"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Користувач успішно зареєстрований",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user_id": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "role": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Помилка при реєстрації користувача"
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "summary": "Авторизація користувача",
+        "description": "Авторизація користувача для входу в систему",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": ["name", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Користувач успішно авторизований",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user_id": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "role": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Невірний логін або пароль"
+          }
+        }
+      }
+    },
+    "/vehicles": {
+      "post": {
+        "summary": "Додавання машини",
+        "description": "Додавання нової машини до системи",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "model": {
+                    "type": "string"
+                  },
+                  "license_plate": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string"
+                  }
+                },
+                "required": ["model", "license_plate", "status"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Машина успішно додана",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "vehicle_id": {
+                      "type": "integer"
+                    },
+                    "model": {
+                      "type": "string"
+                    },
+                    "license_plate": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Помилка при додаванні машини"
+          }
+        }
+      }
+    },
+    "/routes": {
+      "post": {
+        "summary": "Додавання маршруту",
+        "description": "Додавання нового маршруту до системи",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "start_location": {
+                    "type": "string"
+                  },
+                  "end_location": {
+                    "type": "string"
+                  },
+                  "distance": {
+                    "type": "number",
+                    "format": "float"
+                  }
+                },
+                "required": ["start_location", "end_location", "distance"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Маршрут успішно доданий",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "route_id": {
+                      "type": "integer"
+                    },
+                    "start_location": {
+                      "type": "string"
+                    },
+                    "end_location": {
+                      "type": "string"
+                    },
+                    "distance": {
+                      "type": "number",
+                      "format": "float"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Помилка при додаванні маршруту"
+          }
+        }
+      },
+      "/users": {
+  "get": {
+    "summary": "Отримання всіх користувачів",
+    "description": "Отримання списку всіх користувачів (тільки для адміністраторів)",
+    "responses": {
+      "200": {
+        "description": "Список користувачів"
+      },
+      "400": {
+        "description": "Помилка при отриманні списку користувачів"
+      }
+    }
+  }
+},
+"/delete-user/{id}": {
+  "delete": {
+    "summary": "Видалення користувача",
+    "description": "Видалення користувача за ID (тільки для адміністраторів)",
+    "parameters": [
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "ID користувача для видалення"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Користувача успішно видалено"
+      },
+      "400": {
+        "description": "Помилка при видаленні користувача"
+      }
+    }
+  }
+},
+"/delete-vehicle/{id}": {
+  "delete": {
+    "summary": "Видалення транспортного засобу",
+    "description": "Видалення транспортного засобу за ID (тільки для адміністраторів)",
+    "parameters": [
+      {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "ID транспортного засобу для видалення"
+      }
+    ],
+    "responses": {
+      "200": {
+        "description": "Транспортний засіб успішно видалено"
+      },
+      "400": {
+        "description": "Помилка при видаленні транспортного засобу"
+      }
+    }
+  }
+}
+
+    }
+  }
+}
