@@ -1,1 +1,303 @@
+Міністерство освіти та науки України Харківський національний університет радіоелектроніки
+
+
+Кафедра ПІ
+
+
+
+Звіт
+З лабораторної роботи 2
+Тема роботи: «РОЗРОБКА БАЗИ ДАНИХ ДЛЯ СЕРВЕРНОЇ ЧАСТИНИ ПРОГРАМНОЇ СИСТЕМИ ТА ПРИКЛАДНОГО ПРОГРАМНОГО ІНТЕРФЕЙСУ (API)»
+з дисципліни «Аналіз та рефакторинг коду»
+
+
+
+
+
+
+Виконав:	Перевірив:
+ст. гр. ПЗПІ-22-8	ст. викладач Сокорчук І.П.
+Тюлєнєв С.О.	 
+
+
+
+
+
+Харків 2024
+ 
+Мета роботи: На лабораторній роботі №2 потрібно розробити базу  даних для серверної частини  програмної системи та прикладного  програмного інтерфейсу.
+Хід роботи: 
+Розробити будову програмної системи.
+1.	Створити UML діаграму прецедентів для серверної частини системи.
+Діаграма прецедентів для системи моніторингу автопарків відображає взаємодію між користувачами (адміністратором і користувачем) та функціональністю системи.
+ 
+Рисунок 1.1 – UML діаграму прецедентів
+
+2.	Створити ER діаграму даних.
+ 
+Рисунок 2.1 – ER діаграма даних
+
+3.	Розробити базу даних (БД) програмної системи.
+Ми створили чотири таблиці для бази даних, що описують транспортні засоби, користувачів, маршрути та сповіщення. Ось запити для створення кожної з них:
+
+
+1 CREATE TABLE vehicles (
+2     vehicle_id SERIAL PRIMARY KEY,
+3     model VARCHAR(255),
+4     license_plate VARCHAR(50),
+5     status VARCHAR(50)
+6 );
+
+7 CREATE TABLE users (
+8     user_id SERIAL PRIMARY KEY,
+9     name VARCHAR(255),
+10     email VARCHAR(255) UNIQUE,
+11     password VARCHAR(255),
+12     role VARCHAR(50)
+13 );
+
+14 CREATE TABLE routes (
+15     route_id SERIAL PRIMARY KEY,
+16     start_location VARCHAR(255),
+17     end_location VARCHAR(255),
+18     distance FLOAT
+19 );
+
+20 CREATE TABLE notifications (
+21     notification_id SERIAL PRIMARY KEY,
+22     user_id INT,
+23     message VARCHAR(255),
+24     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+25     FOREIGN KEY (user_id) REFERENCES users(user_id)
+26 );
+Ці таблиці є основою для зберігання та організації даних про транспортні засоби, користувачів, маршрути та сповіщення в базі даних.
+4.	Створити діаграму структури БД. 
+Було сформовано ER-діаграму, яка візуально відображає сутності, їхні атрибути та зв'язки між ними, що допомагає краще зрозуміти структуру даних і забезпечує зручність при розробці та використанні бази даних.
+ 
+Рисунок 4.1 – Діаграма структури БД
+
+5.	Розробити функції роботи з БД (ORM або CoRM тощо).
+Для роботи з базою даних були розроблені функції, що реалізують ключові операції в системі, такі як авторизація, реєстрація користувачів, а також додавання нових автомобілів і маршрутів. Ці функції взаємодіють із базою даних PostgreSQL, виконуючи SQL-запити для збереження, оновлення та отримання необхідних даних. У Додатку А наведено код для демонстрації виконання завдання.
+
+6.	Розробити API (REST або GraphQL, gRPC тощо) для взаємодії серверної частини з клієнтами.
+Для забезпечення ефективної взаємодії між серверною частиною і клієнтами було розроблено API на основі REST. API включає основні функціональні можливості для роботи з користувачами, автомобілями та маршрутами. Код для реалізації завдання наведено у Додатку Б. 
+
+7.	Створити програмну реалізацію розробленого API та функцій роботи з БД.
+
+
+7. Створення програмної реалізації розробленого API
+Програмна реалізація розробленого API забезпечує інтерактивну взаємодію між серверною частиною та клієнтами. Це дозволяє клієнтам виконувати операції, такі як реєстрація, авторизація користувачів, а також додавання нових автомобілів і маршрутів у систему. Для розробки API було використано технології Node.js, Express, PostgreSQL та Swagger для документування.
+ 
+Рисунок 7.1 – Розроблений API
+Посилання на відео-звіт: 
+Висновки: У процесі розробки було створено RESTful API, яке забезпечує взаємодію між серверною частиною і клієнтами. API реалізує функції реєстрації та авторизації користувачів, а також додавання нових автомобілів і маршрутів. Використання фреймворка Express для обробки HTTP-запитів та PostgreSQL для збереження даних дозволило створити ефективну і масштабовану серверну частину.
+
+
+
+
+Додаток А – Функції роботи з БД
+
+1 const client = require('./db'); // Підключення до бази даних
+
+2 // Функція для реєстрації користувача
+3 async function registerUser(name, password, role) {
+4   const query = 'INSERT INTO users (name, password, role) VALUES ($1, $2, $3) RETURNING user_id, name, role';
+5   const values = [name, password, role];
+6   
+7   try {
+8     const result = await client.query(query, values);
+9     return result.rows[0];
+10  } catch (err) {
+11    throw new Error('Помилка при реєстрації користувача');
+12  }
+13 }
+
+14 // Функція для авторизації користувача
+15 async function loginUser(name, password) {
+16   const query = 'SELECT * FROM users WHERE name = $1';
+17   const values = [name];
+18   
+19   try {
+20     const result = await client.query(query, values);
+21     if (result.rows.length === 0 || result.rows[0].password !== password) {
+22       throw new Error('Невірний логін або пароль');
+23     }
+24     return result.rows[0];
+25   } catch (err) {
+26     throw new Error('Невірний логін або пароль');
+27   }
+28 }
+
+29 // Функція для додавання машини
+30 async function addVehicle(model, license_plate, status) {
+31   const query = 'INSERT INTO vehicles (model, license_plate, status) VALUES ($1, $2, $3) RETURNING vehicle_id, model, license_plate, status';
+32   const values = [model, license_plate, status];
+33   
+34   try {
+35     const result = await client.query(query, values);
+36     return result.rows[0];
+37   } catch (err) {
+38     throw new Error('Помилка при додаванні машини');
+39   }
+40 }
+
+41 // Функція для додавання маршруту
+42 async function addRoute(start_location, end_location, distance) {
+43   const query = 'INSERT INTO routes (start_location, end_location, distance) VALUES ($1, $2, $3) RETURNING route_id, start_location, end_location, distance';
+44   const values = [start_location, end_location, distance];
+45   
+46   try {
+47     const result = await client.query(query, values);
+48     return result.rows[0];
+49   } catch (err) {
+50     throw new Error('Помилка при додаванні маршруту');
+51   }
+52 }
+
+53 module.exports = { registerUser, loginUser, addVehicle, addRoute };
+
+
+
+
+
+
+Додаток Б – API для взаємодії серверної частини з клієнтами
+
+1 const express = require('express');
+2 const client = require('./db');
+3 const { registerUser, loginUser, addVehicle, addRoute } = require('./functions');
+4 const swaggerJSDoc = require('swagger-jsdoc');
+5 const swaggerUi = require('swagger-ui-express');
+
+6 const app = express();
+7 app.use(express.json());
+
+8 const swaggerOptions = {
+9   definition: {
+10    openapi: '3.0.0',
+11    info: {
+12      title: 'API для роботи з "Програмна система для управління паркуванням"',
+13      version: '1.0.0',
+14    },
+15    servers: [
+16      {
+17        url: 'http://localhost:3000',
+18      },
+19    ],
+20  },
+21  apis: ['./server.js'],
+22 };
+
+23 const swaggerSpec = swaggerJSDoc(swaggerOptions);
+
+24 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+25 /**
+26  * @swagger
+27  * /vehicle:
+28  *   post:
+29  *     summary: Додавання нової машини
+30  *     description: Додавання нової машини до системи
+31  *     requestBody:
+32  *       required: true
+33  *       content:
+34  *         application/json:
+35  *           schema:
+36  *             type: object
+37  *             properties:
+38  *               model:
+39  *                 type: string
+40  *               license_plate:
+41  *                 type: string
+42  *               status:
+43  *                 type: string
+44  *             required:
+45  *               - model
+46  *               - license_plate
+47  *               - status
+48  *     responses:
+49  *       200:
+50  *         description: Машина успішно додана
+51  *         content:
+52  *           application/json:
+53  *             schema:
+54  *               type: object
+55  *               properties:
+56  *                 vehicle_id:
+57  *                   type: integer
+58  *                 model:
+59  *                   type: string
+60  *                 license_plate:
+61  *                   type: string
+62  *                 status:
+63  *                   type: string
+64  *       400:
+65  *         description: Помилка при додаванні машини
+66  */
+67 app.post('/vehicle', async (req, res) => {
+68   const { model, license_plate, status } = req.body;
+69   try {
+70     const vehicle = await addVehicle(model, license_plate, status);
+71     res.status(200).json(vehicle);
+72   } catch (err) {
+73     res.status(400).json({ error: 'Помилка при додаванні машини' });
+74   }
+75 });
+
+76 /**
+77  * @swagger
+78  * /route:
+79  *   post:
+80  *     summary: Додавання нового маршруту
+81  *     description: Додавання нового маршруту до системи
+82  *     requestBody:
+83  *       required: true
+84  *       content:
+85  *         application/json:
+86  *           schema:
+87  *             type: object
+88  *             properties:
+89  *               start_location:
+90  *                 type: string
+91  *               end_location:
+92  *                 type: string
+93  *               distance:
+94  *                 type: number
+95  *             required:
+96  *               - start_location
+97  *               - end_location
+98  *               - distance
+99  *     responses:
+100 *       200:
+101 *         description: Маршрут успішно доданий
+102 *         content:
+103 *           application/json:
+104 *             schema:
+105 *               type: object
+106 *               properties:
+107 *                 route_id:
+108 *                   type: integer
+109 *                 start_location:
+110 *                   type: string
+111 *                 end_location:
+112 *                   type: string
+113 *                 distance:
+114 *                   type: number
+115 *       400:
+116 *         description: Помилка при додаванні маршруту
+117 */
+118 app.post('/route', async (req, res) => {
+119   const { start_location, end_location, distance } = req.body;
+120   try {
+121     const route = await addRoute(start_location, end_location, distance);
+122     res.status(200).json(route);
+123   } catch (err) {
+124     res.status(400).json({ error: 'Помилка при додаванні маршруту' });
+125   }
+126 });
+
+127 const PORT = 3000;
+128 app.listen(PORT, () => {
+129   console.log(`Сервер запущено на http://localhost:${PORT}`);
+130 });
 
